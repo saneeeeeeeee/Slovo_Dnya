@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Слово дня с календарем</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        h1 {
+            color: #3498db;
+        }
+        #word-container {
+            margin-top: 20px;
+        }
+        #calendar-container {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        td {
+            cursor: pointer;
+        }
+        .selected {
+            background-color: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<h1>Слово дня</h1>
+<div id="word-container">
+    <p id="word-of-the-day">Нажмите кнопку, чтобы увидеть слово дня.</p>
+    <p id="description"></p>
+    <button onclick="getWordOfTheDay()">Показать слово дня</button>
+</div>
+<script>
+    const wordsWithDescriptions = [
+        { word: "Красный", description: "Цвет красный." },
+        { word: "Банан", description: "Съедобный фрукт, обычно жёлтого цвета." },
+        { word: "Книга", description: "Печатное издание, состоящее из листов бумаги, скреплённых между собой." },
+        { word: "Велосипед", description: "Транспортное средство с двумя колесами." },
+        { word: "Музыка", description: "Искусство звукового воспроизведения." },
+        { word: "Пазл", description: "Игрушка или головоломка, состоящая из множества деталей, которые надо соединить в одно целое." },
+        { word: "Подушка", description: "Мягкий предмет для поддержки головы во время сна." },
+        { word: "Шахматы", description: "Стратегическая настольная игра для двух игроков." },
+        { word: "Молоко", description: "Жидкость, выделяемая млекопитающими для кормления своих детёнышей." },
+        { word: "Театр", description: "Место для публичного исполнения сценических произведений." },
+        { word: "Эклектичный", description: "Смешение различных стилей, идей или элементов в одном произведении или объекте." },
+        { word: "Перспективный", description: "Обладающий потенциалом для будущего успеха или развития." },
+        { word: "Космогония", description: "Научное или мифологическое объяснение происхождения Вселенной." },
+        { word: "Экзистенциальный", description: "Связанный с философской концепцией существования и его смысла." },
+        { word: "Интроспекция", description: "Внутренний самоанализ, осмотр своих мыслей и чувств." },
+        { word: "Эфемерный", description: "Кратковременный, быстро проходящий или исчезающий." },
+        { word: "Коллоквиум", description: "Неформальная группа обсуждения или академическая дискуссия." },
+        { word: "Элегия", description: "Лирическое произведение, чаще всего печальное или грустное." },
+        { word: "Энтомология", description: "Наука, изучающая насекомых." },
+        { word: "Периферия", description: "Отдалённые или внешние районы, области или пределы чего-либо." },
+        { word: "Инквизитор", description: "Человек, занимавшийся проведением религиозных судов и исследованием еретиков." },
+        { word: "Гастроном", description: "Любитель и знаток изысканной пищи, гурман." },
+        { word: "Благородство", description: "Высокая нравственность, чувство чести и достоинства." },
+        { word: "Конвейер", description: "Механизированная система для перемещения товаров по предприятию." },
+        { word: "Экспромт", description: "Неожиданное, мгновенное исполнение без предварительной подготовки." },
+        { word: "Деспотия", description: "Форма правления, при которой власть сосредоточена в руках одного человека." },
+        { word: "Диссонанс", description: "Несогласованность, разногласие, конфликт между элементами." },
+        { word: "Магнитуда", description: "Мера энергии, высвобождаемой при землетрясении." },
+        { word: "Номинализм", description: "Философское учение, отрицающее реальность общих понятий." },
+        { word: "Прокрастинация", description: "Тенденция откладывать дела на потом." },
+        { word: "Ширмолюд", description: "Люди, предпочитающие избегать общественных мероприятий и оставаться в стороне." },
+        { word: "Экспатриант", description: "Человек, проживающий вне своей родной страны." },
+        { word: "Гипсография", description: "Описание рельефа местности с использованием графических средств." },
+        { word: "Коллегиальность", description: "Принцип организации, основанный на коллективном принятии решений и общественном участии." },
+        { word: "Эксплуатация", description: "Использование чего-либо в своих целях; извлечение выгоды." },
+        { word: "Карьеризм", description: "Постоянное стремление к профессиональному и карьерному росту." },
+        { word: "Инфантильность", description: "Состояние души, характеризующееся детским, незрелым поведением." },
+        { word: "Партизан", description: "Борец за свободу, действующий в тылу врага, часто использующий методы неправильной войны." },
+        { word: "Провокация", description: "Действие с целью вызвать определенную реакцию, ответ или событие." },
+        { word: "Экспонат", description: "Предмет, выставленный на обозрение в музее или галерее." },
+        { word: "Трофей", description: "Военный трофей, захваченный вражеский предмет." },
+        { word: "Прегрессия", description: "Обратное развитие, ухудшение состояния." },
+        { word: "Трансцендентальный", description: "Превышающий пределы опыта и наблюдения." },
+        { word: "Жульничество", description: "Использование обманных приемов для достижения цели." },
+        { word: "Агрегатное состояние", description: "Физическое состояние вещества: твердое, жидкое или газообразное." },
+        { word: "Коллапс", description: "Рушение, крах, полное разрушение." },
+        { word: "Имманентный", description: "Присущий, свойственный, находящийся внутри." },
+        { word: "Эвристика", description: "Искусство нахождения решения или ответа, эффективные методы решения задач." },
+        { word: "Хронометраж", description: "Измерение времени, продолжительность событий." },
+        { word: "Флегматик", description: "Человек с спокойным и равнодушным характером." }
+    ];
+
+    function getWordOfTheDay() {
+        const wordContainer = document.getElementById("word-of-the-day");
+        const descriptionContainer = document.getElementById("description");
+        const randomIndex = Math.floor(Math.random() * wordsWithDescriptions.length);
+        const randomWord = wordsWithDescriptions[randomIndex].word;
+        const description = wordsWithDescriptions[randomIndex].description;
+
+        wordContainer.innerText = `Слово дня: ${randomWord}`;
+        descriptionContainer.innerText = `Описание: ${description}`;
+    }
+</script>
+</body>
+</html>
